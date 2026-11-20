@@ -1,0 +1,114 @@
+# The Delian Tomb — traced from the book map (p.6, campaign/the-delian-tomb/extracted/images/p0006_x13.png).
+# Book grid: 13 x 15 squares (~106.8 px each); coordinates below match it 1:1.
+meta:
+  title: "The Delian Tomb"
+  source: "The Delian Tomb, map p.6, rooms p.7-8"
+  size: [13, 15]
+  ppg: 100
+  background: rock
+  floor: stone
+  seed: 3
+
+areas:
+  # --- A: Offering Room + entrance -------------------------------------
+  - id: A
+    name: The Offering Room
+    page: 7
+    rect: [3, 10, 5, 3]
+    label_at: [5.6, 10.6]
+    desc: >-
+      Five goblins cooking and dicing (if alerted they flip tables and take cover with bows).
+      Two copper bowls: one is their campfire, one their toilet (scroll of Magic Missile under it,
+      DC 15 Perception). Walls carved with the Delian knights and the Delian Oath — the oath is the
+      answer to the riddle in B. The goblin patrol attacks from behind one round into this fight
+      if it wasn't met outside.
+  - name: entrance hall (west leg)
+    rect: [2, 11, 1, 3]
+  - name: entrance stair landing
+    rect: [2, 13, 3, 1]
+  # --- corridor A -> B --------------------------------------------------
+  - name: corridor east
+    rect: [8, 11, 2, 1]
+  - name: corridor north
+    rect: [9, 9, 1, 2]
+  # --- B: Prayer Room ---------------------------------------------------
+  - id: B
+    name: The Prayer Room
+    page: 7
+    rect: [7, 3, 5, 6]
+    floor: marble
+    label_at: [9.6, 6.8]
+    desc: >-
+      Pale stone, niches for Delian paladins, statue of the order's founder on a dais. Peter is in a
+      crude iron cage (padlock: smash it). Five goblins + a goblin priest mid-ritual (disadvantage on
+      Perception until someone attacks or enters); a bugbear in the corner by the door, unseen from
+      the hall. All fight to the death; they offer to spare a downed PC if the party leaves Peter.
+      Riddle on the dais (Elvish): "To keep this, you must first give it to me." — answer: your word.
+      Swearing the Delian Oath opens the secret door in the back corner.
+  - name: statue alcove
+    rect: [8, 2, 3, 1]
+    floor: marble
+  - name: dais
+    rect: [8.6, 2, 1.9, 1.2]
+    floor: tile
+    walls: false
+  # --- secret area: antechamber + C: The Tomb ---------------------------
+  - name: secret antechamber
+    rect: [7, 0.5, 2, 1.5]
+    hidden: true
+  - name: hidden passage (assumed — not drawn on the book map)
+    rect: [3, 0.5, 4, 1]
+    hidden: true
+  - name: tomb passage
+    rect: [3, 1, 1, 2]
+    hidden: true
+  - id: C
+    name: The Tomb
+    page: 8
+    rect: [1, 3, 5, 6]
+    hidden: true
+    label_at: [3.65, 4.4]
+    desc: >-
+      Holy place. The Edict Blade (+1 longsword, +2 vs goblinoids) on a weapon stand. Oath-sworn PCs
+      know they may take the sword and nothing else. If an unsworn PC takes it, or anyone opens a
+      sarcophagus or takes anything else, 3 skeletons rise from random sarcophagi. Each sarcophagus:
+      3d20 gp of stones/offerings; each skeleton wears a 30 gp gold circlet; tapestry 45 gp.
+
+walls:
+  - [[3, 12], [3, 13], [5, 13]]   # west leg opens into A only at row 11; A's south wall over the stair landing
+
+doors:
+  - {seg: [8, 11, 8, 12], type: arch, note: "Heavy stone door, smashed open (more than human strength)"}
+  - {seg: [5, 13, 5, 14], type: arch, note: "Stairs up to the hilltop; the tomb doors above were broken and shoved aside"}
+  - {seg: [8, 2, 9, 2], type: secret, note: "Opens when a PC speaks the Delian Oath (or a similar promise) in the Prayer Room"}
+
+features:
+  # A
+  - {type: stairs, at: [4.5, 13.5], size: [1, 1], down: w}
+  - {type: cauldron, at: [4.6, 11.5], color: "#5d4f3a", note: "Copper bowl used as a toilet — scroll of Magic Missile underneath (DC 15)"}
+  - {type: brazier, at: [6.6, 11.5], size: 0.9, note: "Copper bowl used as the goblins' campfire"}
+  - {type: rubble, at: [8.05, 11.5], size: [0.5, 1.2], count: 9}
+  - {type: trap, at: [8.5, 11.5], label: T, note: "Scythe trap on the tile past the door: DC 15 to spot, +8 to hit, 1d4 slashing (Medium+ creatures)"}
+  - {type: marker, at: [5.6, 12.4], label: G, note: "5 goblins (Offering Room)"}
+  # B
+  - {type: pillar, at: [8.2, 4.0], size: 0.6}
+  - {type: pillar, at: [11.1, 4.0], size: 0.6}
+  - {type: pillar, at: [8.2, 5.8], size: 0.6}
+  - {type: pillar, at: [11.1, 5.8], size: 0.6}
+  - {type: pillar, at: [8.2, 7.9], size: 0.6}
+  - {type: pillar, at: [11.1, 7.9], size: 0.6}
+  - {type: statue, at: [9.55, 2.5], size: 0.9, note: "Founder of the Delian Order; riddle carved on the dais"}
+  - {type: cage, at: [10.6, 3.45], size: 0.9, rot: 30, note: "Peter Mabbett, sobbing"}
+  - {type: marker, at: [9.6, 4.9], label: G, note: "5 goblins + goblin priest, mid-ritual"}
+  - {type: marker, at: [7.5, 8.5], label: BB, note: "Bugbear, hidden in the corner by the door"}
+  # C (hidden)
+  - {type: sarcophagus, at: [2.35, 4.2], size: [0.85, 1.6], rot: 90}
+  - {type: sarcophagus, at: [4.95, 4.2], size: [0.85, 1.6], rot: 90}
+  - {type: sarcophagus, at: [2.35, 5.8], size: [0.85, 1.6], rot: 90}
+  - {type: sarcophagus, at: [4.95, 5.8], size: [0.85, 1.6], rot: 90}
+  - {type: sarcophagus, at: [3.65, 7.95], size: [0.85, 1.75]}
+  - {type: weapon_stand, at: [3.65, 6.05], size: 0.8, color: "#9fd0ff", note: "The Edict Blade"}
+  - {type: tapestry, at: [3.0, 3.15], size: [1.6, 0.25], note: "Tapestry, 45 gp (placement assumed)"}
+
+labels:
+  - {text: "up to the hilltop", at: [3.5, 14.55], size: 0.3}

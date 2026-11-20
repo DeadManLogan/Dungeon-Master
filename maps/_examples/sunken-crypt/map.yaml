@@ -1,0 +1,142 @@
+# Example map exercising most features of the spec. Original content.
+meta:
+  title: "The Sunken Crypt"
+  source: "Example map (original)"
+  size: [36, 26]
+  ppg: 100
+  background: rock
+  floor: stone
+  seed: 7
+  show_title: true
+
+areas:
+  - id: 1
+    name: Entry Hall
+    rect: [2, 10, 6, 6]
+    desc: Stairs descend from the ruined chapel above. Dust shows recent footprints heading east.
+  - name: east passage
+    path: [[8, 13], [13, 13]]
+    width: 2
+  - id: 2
+    name: Hall of Pillars
+    rect: [13, 7, 10, 12]
+    floor: checker
+    desc: Eight pillars hold up a vaulted ceiling. Two skeletal guardians wait behind the statues (A).
+  - name: chapel passage
+    rect: [17, 6, 2, 1]
+  - id: 3
+    name: Chapel of the Drowned God
+    rect: [15, 1, 6, 5]
+    floor: marble
+    desc: An altar to a sea deity. The candles never go out.
+  - name: crypt passage
+    rect: [17, 19, 2, 2]
+  - id: 4
+    name: Burial Vault
+    rect: [14, 21, 8, 4]
+    label_at: [15, 21.7]
+    desc: Three sarcophagi. The middle one holds the false abbot.
+  - name: store passage
+    path: [[11, 21.5], [14, 21.5]]
+    width: 1
+  - id: 5
+    name: Storeroom
+    rect: [4, 19, 7, 5]
+    floor: wood
+    desc: Spoiled supplies. A partition wall splits off a small office.
+  - name: cave tunnel
+    path: [[23, 12], [26.5, 12]]
+    width: 1
+    floor: cave
+  - id: 6
+    name: Flooded Grotto
+    poly: [[25, 5], [32, 3.5], [34.5, 9], [33, 16], [27, 17.5], [24.5, 12]]
+    floor: cave
+    rough: 0.35
+    desc: Black water fills the centre of the cave. Something large moves beneath it.
+  - name: pool
+    ellipse: [29.5, 10.5, 2.6, 2.2]
+    floor: water
+    walls: false
+    rough: 0.25
+  - id: 7
+    name: Abbot's Hoard
+    rect: [2, 2, 6, 5]
+    hidden: true
+    label_at: [7, 6]
+    desc: Secret treasury reached from the Entry Hall. Poison-needle trap on the chest.
+  - name: secret passage
+    rect: [4, 7, 1, 3]
+    hidden: true
+  - name: big pillar NW   # cut = solid rock inside a room
+    rect: [15, 9, 1, 1]
+    cut: true
+  - name: big pillar NE
+    rect: [20, 9, 1, 1]
+    cut: true
+
+walls:
+  - [[8, 19], [8, 24]]          # partition in the storeroom
+
+doors:
+  - {seg: [13, 12, 13, 14], type: double}
+  - {seg: [17, 6, 19, 6], type: door}
+  - {seg: [17, 21, 19, 21], type: locked, note: "Key carried by the false abbot"}
+  - {seg: [14, 21, 14, 22], type: door}
+  - {seg: [8, 21, 8, 22], type: door}
+  - {seg: [23, 11.5, 23, 12.5], type: arch}
+  - {seg: [24.5, 11.5, 24.5, 12.5], type: bars}
+  - {seg: [4, 10, 5, 10], type: secret, note: "Push the third brick; DC 15 Perception to notice"}
+
+features:
+  - {type: stairs, at: [3.5, 13], size: [2, 2], down: e}
+  - {type: torch, at: [6.5, 10.3]}
+  - {type: torch, at: [6.5, 15.7], rot: 180}
+  - {type: rubble, at: [5.5, 11.5], size: [2, 1.5]}
+  - {type: trap, at: [10.5, 13.5], label: T1, note: "Pressure plate: 2d6 darts"}
+  # hall of pillars
+  - {type: pillar, at: [15.5, 13]}
+  - {type: pillar, at: [20.5, 13]}
+  - {type: pillar, at: [15.5, 16.5]}
+  - {type: pillar, at: [20.5, 16.5]}
+  - {type: statue, at: [18, 9.5], size: 1.4}
+  - {type: brazier, at: [14, 8]}
+  - {type: brazier, at: [22, 8]}
+  - {type: rug, at: [18, 14], size: [2, 6]}
+  - {type: marker, at: [17, 11], label: A}
+  - {type: marker, at: [19, 11], label: A}
+  - {type: web, at: [22.2, 18.2], size: 1.6}
+  # chapel
+  - {type: altar, at: [18, 2.3], size: [3, 1]}
+  - {type: candles, at: [16, 1.6]}
+  - {type: candles, at: [20, 1.6]}
+  - {type: bench, at: [18, 4], size: [3, 0.4]}
+  # vault
+  - {type: sarcophagus, at: [16, 23]}
+  - {type: sarcophagus, at: [18, 23]}
+  - {type: sarcophagus, at: [20, 23]}
+  - {type: bones, at: [21.3, 21.8]}
+  # storeroom
+  - {type: crate, at: [5, 20]}
+  - {type: crate, at: [5.9, 20.1]}
+  - {type: barrel, at: [5, 23]}
+  - {type: barrel, at: [5.8, 23.2]}
+  - {type: sacks, at: [7, 23]}
+  - {type: table, at: [9.5, 20], size: [1.6, 0.9]}
+  - {type: chair, at: [9.5, 21], rot: 180}
+  # grotto
+  - {type: stalagmite, at: [26.5, 8]}
+  - {type: stalagmite, at: [33, 12.5]}
+  - {type: boulder, at: [28, 15.5], size: 1.3}
+  - {type: rubble, at: [31.5, 6], size: [2, 1.5]}
+  - {type: mushrooms, at: [27, 14.5]}
+  - {type: crystals, at: [32, 6.8]}
+  - {type: bridge, at: [29.5, 10.5], size: [1, 6], rot: 90}
+  # secret room
+  - {type: chest, at: [5, 3]}
+  - {type: chest, at: [3.2, 4.5], rot: 90}
+  - {type: trap, at: [5, 3.9], size: 0.6, label: T2, note: "Poison needle on the chest lock"}
+
+labels:
+  - {text: "to the surface", at: [3.2, 16.6], size: 0.32}
+  - {text: "pool is 15 ft deep", at: [29.5, 13.6], size: 0.3, dm_only: true}

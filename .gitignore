@@ -1,0 +1,14 @@
+# Copyrighted source material and anything extracted from it
+campaign/**/*.pdf
+campaign/*/extracted/
+
+# Generated map outputs (rebuild with: python -m tools.mapgen all)
+maps/**/*.png
+maps/**/*.dd2vtt
+maps/**/*.pdf
+**/_work/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
