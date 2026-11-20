@@ -110,7 +110,7 @@ def key_markdown(spec: dict) -> str:
 
 
 # ------------------------------------------------------------ print PDF
-PAPER = {"letter": (8.5, 11.0), "a4": (8.27, 11.69)}
+PAPER = {"letter": (8.5, 11.0), "a4": (8.27, 11.69), "a3": (11.69, 16.54)}
 
 
 def print_pdf(img: Image.Image, spec: dict, path, paper: str = "letter", margin: float = 0.3):
@@ -129,6 +129,26 @@ def print_pdf(img: Image.Image, spec: dict, path, paper: str = "letter", margin:
         img = Image.composite(img, Image.new("RGB", img.size, "white"), keep)
     else:
         keep = Image.new("L", img.size, 255)
+    pages = _tile(img, keep, meta["title"], (0, 0), paper, margin, overview=True, ppg=ppg)
+    pages[0].save(path, "PDF", resolution=ppg, save_all=True, append_images=pages[1:])
+    return len(pages) - 1
+
+
+def reveal_pdf(plist: list[dict], spec: dict, path, paper: str = "letter", margin: float = 0.3):
+    """Reveal pieces (see reveal.py) at 1 inch per square, one after another."""
+    pages = []
+    ppg = plist[0]["ppg"]
+    for i, pc in enumerate(plist, 1):
+        im = pc["image"]
+        flat = Image.new("RGB", im.size, "white")
+        flat.paste(im, mask=im.getchannel("A"))
+        heading = f"{spec['meta']['title']} · REVEAL {i}: {pc['name']} · cut along the dashed line"
+        pages += _tile(flat, im.getchannel("A"), heading, pc["squares"][:2], paper, margin, overview=False, ppg=ppg)
+    pages[0].save(path, "PDF", resolution=ppg, save_all=True, append_images=pages[1:])
+    return len(pages)
+
+
+def _layout(gw, gh, paper, margin):
     pw, ph = PAPER[paper]
     best = None
     for (W, H) in ((pw, ph), (ph, pw)):
@@ -137,29 +157,38 @@ def print_pdf(img: Image.Image, spec: dict, path, paper: str = "letter", margin:
         n = math.ceil(gw / cols_per) * math.ceil(gh / rows_per)
         if best is None or n < best[0]:
             best = (n, W, H, cols_per, rows_per)
-    _, W, H, cp, rp = best
-    pages = []
+    return best[1:]
+
+
+def _tile(img, keep, title, origin, paper, margin, overview, ppg):
+    """Cut `img` (whole squares; origin = the map square at its top-left) into
+    page images at 1 inch per square. Pages where `keep` is empty are skipped.
+    With overview, a first page shows the whole image and the page layout."""
+    gw, gh = round(img.width / ppg), round(img.height / ppg)
+    ox_sq, oy_sq = origin
+    W, H, cp, rp = _layout(gw, gh, paper, margin)
     nx, ny = math.ceil(gw / cp), math.ceil(gh / rp)
     f = font(int(ppg * 0.16), bold=False, family="sans")
+    pages = []
 
-    # overview page
-    ov = Image.new("RGB", (int(W * ppg), int(H * ppg)), "white")
-    d = ImageDraw.Draw(ov)
-    avail_w, avail_h = ov.width - 2 * margin * ppg, ov.height - 2 * margin * ppg - ppg * 0.6
-    s = min(avail_w / img.width, avail_h / img.height)
-    thumb = img.resize((int(img.width * s), int(img.height * s)), Image.Resampling.LANCZOS)
-    ox, oy = int(margin * ppg), int(margin * ppg + ppg * 0.6)
-    ov.paste(thumb, (ox, oy))
-    d.text((ox, int(margin * ppg)), f"{spec['meta']['title']} — 1 square = 1 inch (— = blank page, not printed)", font=font(int(ppg * 0.25)), fill="black")
-    for j in range(ny):
-        for i in range(nx):
-            x0, y0 = ox + i * cp * ppg * s, oy + j * rp * ppg * s
-            x1, y1 = ox + min(gw, (i + 1) * cp) * ppg * s, oy + min(gh, (j + 1) * rp) * ppg * s
-            empty = _empty(keep, i, j, cp, rp, gw, gh, ppg)
-            d.rectangle([x0, y0, x1, y1], outline=(200, 200, 200) if empty else (200, 0, 0), width=3)
-            d.text(((x0 + x1) / 2, (y0 + y1) / 2), "—" if empty else f"{chr(65 + j)}{i + 1}",
-                   font=font(int(ppg * 0.35)), fill=(200, 0, 0), anchor="mm")
-    pages.append(ov)
+    if overview:
+        ov = Image.new("RGB", (int(W * ppg), int(H * ppg)), "white")
+        d = ImageDraw.Draw(ov)
+        avail_w, avail_h = ov.width - 2 * margin * ppg, ov.height - 2 * margin * ppg - ppg * 0.6
+        s = min(avail_w / img.width, avail_h / img.height)
+        thumb = img.resize((int(img.width * s), int(img.height * s)), Image.Resampling.LANCZOS)
+        ox, oy = int(margin * ppg), int(margin * ppg + ppg * 0.6)
+        ov.paste(thumb, (ox, oy))
+        d.text((ox, int(margin * ppg)), f"{title} — 1 square = 1 inch (— = blank page, not printed)", font=font(int(ppg * 0.25)), fill="black")
+        for j in range(ny):
+            for i in range(nx):
+                x0, y0 = ox + i * cp * ppg * s, oy + j * rp * ppg * s
+                x1, y1 = ox + min(gw, (i + 1) * cp) * ppg * s, oy + min(gh, (j + 1) * rp) * ppg * s
+                empty = _empty(keep, i, j, cp, rp, gw, gh, ppg)
+                d.rectangle([x0, y0, x1, y1], outline=(200, 200, 200) if empty else (200, 0, 0), width=3)
+                d.text(((x0 + x1) / 2, (y0 + y1) / 2), "—" if empty else f"{chr(65 + j)}{i + 1}",
+                       font=font(int(ppg * 0.35)), fill=(200, 0, 0), anchor="mm")
+        pages.append(ov)
 
     for j in range(ny):
         for i in range(nx):
@@ -172,11 +201,14 @@ def print_pdf(img: Image.Image, spec: dict, path, paper: str = "letter", margin:
             px, py = int(margin * ppg), int(margin * ppg + ppg * 0.2)
             page.paste(crop, (px, py))
             dd = ImageDraw.Draw(page)
-            dd.rectangle([px, py, px + crop.width, py + crop.height], outline="black", width=1)
-            dd.text((px, int(margin * ppg * 0.5)), f"{spec['meta']['title']}  ·  page {chr(65 + j)}{i + 1}  ·  squares x{c0}–{c1 - 1}, y{r0}–{r1 - 1}", font=f, fill="black")
+            if overview:  # whole-map pages get a frame; reveal pieces are cut along their own line
+                dd.rectangle([px, py, px + crop.width, py + crop.height], outline="black", width=1)
+            tag = f"page {chr(65 + j)}{i + 1}  ·  " if nx * ny > 1 else ""
+            dd.text((px, int(margin * ppg * 0.5)),
+                    f"{title}  ·  {tag}squares x{ox_sq + c0}–{ox_sq + c1 - 1}, y{oy_sq + r0}–{oy_sq + r1 - 1}",
+                    font=f, fill="black")
             pages.append(page)
-    pages[0].save(path, "PDF", resolution=ppg, save_all=True, append_images=pages[1:])
-    return len(pages) - 1
+    return pages
 
 
 def _empty(keep, i, j, cp, rp, gw, gh, ppg):

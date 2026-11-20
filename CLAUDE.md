@@ -18,7 +18,7 @@ maps/
   <book>/        same <book> name as under campaign/
     <map>/         one folder per map, e.g. tomb/, hilltop-ruin/
       map.yaml       SOURCE OF TRUTH; edit this, never the images
-      <map>_dm.png / _player.png / _vtt.png / .dd2vtt / _print-*.pdf   generated
+      <map>_dm.png / _player.png / _reveal.png / _vtt.png / .dd2vtt / _print-*.pdf / _reveal_print-*.pdf   generated
       <map>_key.md   generated DM key (committed)
       _work/         previews and scratch (git-ignored)
   _examples/     reference maps showing the spec features (not a book)
@@ -55,8 +55,12 @@ tools/
 ## Table preferences
 
 <!-- Fill in once the DM answers; skills read this. -->
-- VTT / table: VTT (DM accepted the defaults on 2026-11-20). Which VTT is not stated yet, so ship `_vtt.png` + `.dd2vtt`.
+- VTT / table: the DM prints maps for the table (2026-11-20, starting with the tomb). VTT files are still
+  built by default (which VTT, if any, is not stated), so ship `_vtt.png` + `.dd2vtt` too.
 - Pixels per square: 100
-- Print PDFs by default: no (only on request)
-- Paper: letter
+- Print PDFs: yes. Render final maps with `--print` (player map + reveal pieces for hidden areas).
+- Paper: A3 (the `--paper` default). Miniature scale, 1 inch per square, tiled across sheets.
+- Secrets on paper: the DM chose **reveal pieces** (2026-11-20): the player print leaves hidden areas
+  blank; a separate cut-out of each hidden area is laid on top when it's discovered.
+- Never tell the DM to print `_vtt.png` for players: it shows the hidden rooms.
 - Git: generated images/PDFs stay ignored (accepted)

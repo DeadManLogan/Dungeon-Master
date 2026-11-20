@@ -57,7 +57,8 @@ maps/
   README.md
   the-delian-tomb/
     tomb/
-      map.yaml  tomb_key.md  tomb_dm.png  tomb_player.png  tomb_vtt.png  tomb.dd2vtt
+      map.yaml  tomb_key.md  tomb_dm.png  tomb_player.png  tomb_reveal.png  tomb_vtt.png  tomb.dd2vtt
+      tomb_print-a3.pdf  tomb_reveal_print-a3.pdf
     (hilltop-ruin/, mabbett-farm/ … would go here)
   _examples/sunken-crypt/
 ```
@@ -79,7 +80,8 @@ maps/
           │                 e. final render: DM / player / VTT images, .dd2vtt, key
           │                 f. update maps/README.md and the maps table in the book's index.md
           │
- 4. Use it                 VTT: <map>.dd2vtt (or _vtt.png) · you: _dm.png + _key.md · players: _player.png
+ 4. Use it                 table: print _print-a3.pdf, keep _reveal_print-a3.pdf hidden until the secret is found
+          │                 VTT: <map>.dd2vtt (or _vtt.png) · you: _dm.png + _key.md
           │
  5. Change it              "move the door", "add a campfire"  → Claude edits map.yaml and re-renders
 ```
@@ -88,6 +90,7 @@ The rules that make this reliable:
 - **Claude looks at every map before calling it done.**
 - **Secrets never reach the player map.** Secret doors, hidden rooms, traps and
   monster markers are marked as such in the YAML and are stripped automatically.
+  Hidden rooms come back as separate reveal pieces when the party finds them.
 - **No long read-aloud text is copied from the book.** Notes are short summaries
   with page numbers.
 
@@ -95,18 +98,20 @@ The rules that make this reliable:
 
 | file | use it for |
 |---|---|
-| `<map>_vtt.png` | Upload to any VTT (no grid; the VTT draws it). 100 px per square |
+| `<map>_print-a3.pdf` | **Print this for the table.** The player map at 1 inch per square, tiled across A3 sheets (tape them together). Rock is white to save ink. The first page is an assembly guide; don't print it if you don't need it |
+| `<map>_reveal_print-a3.pdf` | **Reveal pieces**, only for maps with secret areas. Each hidden area as the party finds it (secret doors shown as doors), same scale. Cut along the dashed line and lay it on the player print when the secret is discovered. Keep it out of sight until then |
+| `<map>_reveal.png` | The same reveal pieces as an image, with the squares each one covers |
+| `<map>_vtt.png` | Upload to any VTT (no grid; the VTT draws it). 100 px per square. **Don't print it for players: it shows the secret rooms** |
 | `<map>.dd2vtt` | Universal VTT: image + walls + doors + lights. Foundry: *Universal Battlemap Importer* module. Also Arkenforge, Owlbear Rodeo extensions, Roll20 (API script) |
-| `<map>_player.png` | Gridded player handout. Secrets removed |
+| `<map>_player.png` | Gridded player map as an image. Secrets removed. For printing, prefer the PDF (sharper, right scale, less ink) |
 | `<map>_dm.png` | Your copy: room numbers, secret doors, traps, encounter markers |
 | `<map>_key.md` | Room-by-room DM notes with page refs |
-| `<map>_print-letter.pdf` | Optional, built with `--print`. Tiled at 1 inch per square for miniatures |
 
 ## Tools
 
 ```
 python -m tools.mapgen new <book>/<map> --title "…" --size 30x20
-python -m tools.mapgen render maps/<book>/<map>/map.yaml [--only preview] [--print] [--paper a4]
+python -m tools.mapgen render maps/<book>/<map>/map.yaml [--only preview] [--print] [--paper a3|a4|letter]
 python -m tools.mapgen all [--book <book>]     # re-render every map (e.g. on a new machine)
 python -m tools.mapgen catalog [--sheet]       # floors / doors / features (see tools/mapgen/catalog.png)
 python tools/pdf_extract.py ingest campaign/<book>/<file>.pdf
@@ -132,3 +137,4 @@ None are required for maps.
 - 2026-11-19: Repo set up. Maps are YAML rendered by `tools/mapgen`. Generated files are git-ignored.
 - 2026-11-20: Defaults accepted: VTT play, 100 px per square, no print PDFs unless asked. *The Delian Tomb* ingested; tomb map done.
 - 2026-11-20: **Everything grouped by book.** `campaign/<book>/` holds the PDF, its `extracted/` data and its `index.md`; maps live in `maps/<book>/<map>/` under the same book name. `campaign/source/` and the top-level `campaign/index.md` / `campaign/extracted/` are gone. The tomb map moved from `maps/delian-tomb/` to `maps/the-delian-tomb/tomb/` (output files are now `tomb_*`).
+- 2026-11-20: **Maps are printed for the table**, on A3 at 1 inch per square (A3 is now the default paper). Secret areas use **reveal pieces**: the player print leaves them blank, and a separate cut-out (`_reveal_print-a3.pdf`) is laid on top when they're found. The VTT image must not be printed for players because it shows the secret rooms.

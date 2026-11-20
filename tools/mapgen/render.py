@@ -4,7 +4,9 @@ Variants
   dm      everything: room numbers, secret doors, traps, DM labels, hidden areas
   player  handout: no DM annotations, `hidden` areas/doors/features removed
   vtt     VTT upload: like player but keeps hidden areas (fog of war hides them),
-          and normally rendered without a grid (the VTT draws its own)
+          and normally rendered without a grid (the VTT draws its own).
+          NOT for printing: it shows the secret rooms.
+Reveal pieces (the hidden areas as found, for printed play) are built in reveal.py.
 """
 from __future__ import annotations
 

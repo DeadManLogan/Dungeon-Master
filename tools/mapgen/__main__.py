@@ -3,7 +3,7 @@
 Maps are grouped by book: maps/<book>/<map>/map.yaml, where <book> is the same
 folder name as campaign/<book>/.
 
-  python -m tools.mapgen render maps/<book>/<map>/map.yaml [--only dm,player,vtt,uvtt,key,preview,print] [--paper a4]
+  python -m tools.mapgen render maps/<book>/<map>/map.yaml [--only dm,player,reveal,vtt,uvtt,key,preview,print] [--print] [--paper a3|a4|letter]
   python -m tools.mapgen all    [--book <book>] [--only ...] [--examples]      re-render every map (or one book's)
   python -m tools.mapgen check  maps/<book>/<map>/map.yaml
   python -m tools.mapgen new    <book>/<map> [--title "..."] [--size 30x20] [--background rock] [--floor stone]
@@ -18,11 +18,11 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUTPUTS = ["dm", "player", "vtt", "uvtt", "key", "preview"]
+DEFAULT_OUTPUTS = ["dm", "player", "reveal", "vtt", "uvtt", "key", "preview"]
 
 
 def cmd_render(args):
-    from . import export, render, spec as specmod
+    from . import export, render, reveal, spec as specmod
     try:
         spec = specmod.load(args.map)
     except specmod.SpecError as e:
@@ -39,15 +39,24 @@ def cmd_render(args):
     cache = {}
 
     def get(variant, grid=None, ppg=None):
+        """variant 'found' = the player map with every secret discovered (for reveal pieces)."""
         k = (variant, grid, ppg)
         if k not in cache:
-            cache[k] = render.render(spec, variant, grid=grid, ppg=ppg)
+            if variant == "found":
+                cache[k] = render.render(reveal.revealed_spec(spec), "player", grid=grid, ppg=ppg)
+            else:
+                cache[k] = render.render(spec, variant, grid=grid, ppg=ppg)
         return cache[k]
+
+    has_secrets = bool(reveal.regions(spec))
 
     if "dm" in outs:
         p = folder / f"{slug}_dm.png"; get("dm").save(p, compress_level=3); written.append(p)
     if "player" in outs:
         p = folder / f"{slug}_player.png"; get("player").save(p, compress_level=3); written.append(p)
+    if "reveal" in outs and has_secrets:
+        plist = reveal.pieces(spec, get("found"))
+        p = folder / f"{slug}_reveal.png"; reveal.sheet(spec, plist).save(p, compress_level=3); written.append(p)
     if "vtt" in outs or "uvtt" in outs:
         img = get("vtt", grid=False)
         if "vtt" in outs:
@@ -68,6 +77,12 @@ def cmd_render(args):
         n = export.print_pdf(img, spec, p, paper=args.paper)
         written.append(p)
         print(f"print: {n} pages at 1 inch per square")
+        if has_secrets:
+            plist = reveal.pieces(spec, get("found", grid=True, ppg=ppg), blank_rock=True)
+            p = folder / f"{slug}_reveal_print-{args.paper}.pdf"
+            n = export.reveal_pdf(plist, spec, p, paper=args.paper)
+            written.append(p)
+            print(f"reveal: {len(plist)} piece(s) on {n} page(s); keep this PDF away from the players")
     big = max(spec["meta"]["size"]) * spec["meta"]["ppg"]
     if big > 8192:
         print(f"WARN image is {big}px on its long side; many VTTs/GPUs cap textures at 8192px — "
@@ -183,11 +198,11 @@ def main(argv=None):
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("render"); r.add_argument("map"); r.add_argument("--only", help=",".join(DEFAULT_OUTPUTS + ["print"]))
     r.add_argument("--print", action="store_true", help="also build the tiled print PDF")
-    r.add_argument("--paper", default="letter", choices=["letter", "a4"])
+    r.add_argument("--paper", default="a3", choices=["letter", "a4", "a3"])
     r.set_defaults(fn=cmd_render)
     a = sub.add_parser("all", help="re-render every maps/**/map.yaml")
     a.add_argument("--book", help="only this book's maps"); a.add_argument("--only"); a.add_argument("--print", action="store_true")
-    a.add_argument("--paper", default="letter", choices=["letter", "a4"]); a.add_argument("--examples", action="store_true")
+    a.add_argument("--paper", default="a3", choices=["letter", "a4", "a3"]); a.add_argument("--examples", action="store_true")
     a.set_defaults(fn=cmd_all)
     c = sub.add_parser("check"); c.add_argument("map"); c.set_defaults(fn=cmd_check)
     n = sub.add_parser("new"); n.add_argument("slug", metavar="book/map"); n.add_argument("--title"); n.add_argument("--size", default="30x20")

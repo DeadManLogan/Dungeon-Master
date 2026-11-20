@@ -20,9 +20,9 @@ writing or changing a spec. Tracing a map from the PDF is covered in
 - **Scope:** a whole dungeon, one level, or a single room or encounter area. For huge
   sites, split by level or wing.
 
-Defaults (don't ask): 5-ft squares, `ppg: 100`, `vtt` style. Outputs are DM, player
-and VTT PNGs, `.dd2vtt`, the key and the preview. Add the print PDF only when the
-user plays in person or asks for it (see `CLAUDE.md` › Table preferences).
+Defaults (don't ask): 5-ft squares, `ppg: 100`, `vtt` style. Outputs are DM, player,
+reveal and VTT PNGs, `.dd2vtt`, the key and the preview. The DM prints maps, so the
+final render uses `--print` (see `CLAUDE.md` › Table preferences).
 
 ## 1. Gather the source material
 
@@ -82,20 +82,27 @@ small to judge a detail.
 ## 5. Final render
 
 ```
-python -m tools.mapgen render <folder>/map.yaml            # dm, player, vtt, dd2vtt, key, preview
-python -m tools.mapgen render <folder>/map.yaml --print    # + tiled PDF at 1 inch per square
+python -m tools.mapgen render <folder>/map.yaml            # dm, player, reveal, vtt, dd2vtt, key, preview
+python -m tools.mapgen render <folder>/map.yaml --print    # + <map>_print-a3.pdf and <map>_reveal_print-a3.pdf
 ```
 
-Look at the **player** PNG once to confirm that no secret door, hidden room, trap
-or marker shows.
+- Look at the **player** PNG once to confirm that no secret door, hidden room, trap
+  or marker shows.
+- If the map has `hidden` areas, look at `<map>_reveal.png`. Each piece should show
+  the hidden rooms as found (secret doors drawn as doors) and nothing DM-only. To
+  check that it lines up, paste it onto the player PNG at its squares (the caption
+  gives them; 1 square = `ppg` px). Secret doors between two *visible* rooms get no
+  piece: the DM just describes them, so mention it in the report.
 
 ## 6. Book-keeping and report
 
 - Add or update the row in `maps/README.md`, under the book's heading (map, title, source pages, status).
 - Mark the map as done in the `campaign/<book>/index.md` maps table.
 - Tell the user:
-  - which files to use: `_vtt.png` or `.dd2vtt` for the VTT, `_player.png` as a
-    handout, `_dm.png` for themselves
+  - which files to use. For the table, print `_print-a3.pdf` (players) and
+    `_reveal_print-a3.pdf` (keep it hidden until the secret is found). For a VTT,
+    use `.dd2vtt` or `_vtt.png`. `_dm.png` and the key are for the DM only.
+    Never suggest printing `_vtt.png` for players: it shows the hidden rooms.
   - any assumptions or deviations from the book
   - anything they should check in play: things the VTT export can't express,
     like windows or secret doors needing a manual flip

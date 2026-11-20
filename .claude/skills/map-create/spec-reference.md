@@ -53,7 +53,7 @@ Other keys:
 | walls | true | false = paints the floor only (pools, roads, rugs of texture, outdoor patches). It doesn't change the walkable outline |
 | cut | false | true = solid rock carved out of the floor (thick pillars, rock islands). Gets walls round it |
 | rough | 0 | Wobbly natural edge, in squares. Caves 0.25–0.45, pools 0.2–0.3 |
-| hidden | false | Secret area. Removed from the **player handout** together with everything inside it. Kept on the VTT image, where fog of war hides it |
+| hidden | false | Secret area. Removed from the **player handout** together with everything inside it. Kept on the VTT image, where fog of war hides it. For printed play it becomes a **reveal piece** (`<map>_reveal.png` / `_reveal_print-*.pdf`): the area as found, secret doors drawn as doors, cut to lay on the print. Touching hidden areas form one piece |
 | merge | false | A numbered room that should open into its neighbours with no wall |
 | label_at | centroid | Where to put the room number |
 | seed | — | Per-area rough-edge seed |
